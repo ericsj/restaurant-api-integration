@@ -4,9 +4,9 @@ import type {
   Product,
   ProductVariation,
   Restaurant,
-} from "../domain/entities/raw-data.js";
-import type { MenuItem } from "../domain/entities/transformed-data.js";
-import type { GetMenuItemsFromRestaurant } from "../domain/use-cases.js";
+} from "../../domain/entities/raw-data.js";
+import type { MenuItem } from "../../domain/entities/transformed-data.js";
+import type { GetMenuItemsFromRestaurant } from "../../domain/use-cases.js";
 
 export class GetMenuItemsFromRestaurantUseCase implements GetMenuItemsFromRestaurant {
   getMenuItemsFromRestaurant(restaurant: Restaurant): MenuItem[] {
