@@ -1,18 +1,28 @@
 import type {
-  MenuItem,
-  MenuItemUploadStatus,
-} from "../../domain/entities/transformed-data.js";
-import type {
   IntegrateAllRestarantsMenuItems,
   IntegrateSingleRestarantMenuItems,
-} from "../../domain/use-cases.js";
-import { GetMenuItemsFromRestaurantUseCase } from "../get-menu-items-from-restaurant/get-menu-items-from-restaurant.js";
-import type { RestaurantsApiAdapter } from "../protocols/restaurants-api-adapter.js";
+} from "../../domain/protocols.js";
 
-class IntegrateAllRestarantsMenuItemsUseCase implements IntegrateAllRestarantsMenuItems {
+export class IntegrateAllRestarantsMenuItemsUseCase implements IntegrateAllRestarantsMenuItems {
   constructor(
     private readonly singleRestaurantIntegrator: IntegrateSingleRestarantMenuItems,
   ) {}
 
-  async integrateMenuItems(): Promise<void> {}
+  async integrateMenuItems(): Promise<void> {
+    const restaurantCodes = process.env.RESTAURANT_CODES;
+    if (!restaurantCodes) {
+      throw new Error("Restaurant codes not present in config");
+    }
+    const splitRestaurantCodes = restaurantCodes.split(",");
+    const allRestaurantsResults = (
+      await Promise.allSettled(
+        splitRestaurantCodes.map((code) =>
+          this.singleRestaurantIntegrator.integrateMenuItems(code),
+        ),
+      )
+    ).flat();
+    for (const singleRestaurantResult of allRestaurantsResults) {
+      console.log(singleRestaurantResult);
+    }
+  }
 }
