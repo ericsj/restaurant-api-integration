@@ -14,13 +14,18 @@ export class IntegrateSingleRestarantMenuItemsUseCase implements IntegrateSingle
   async integrateMenuItems(
     restaurantCode: string,
   ): Promise<MenuItemUploadStatus[]> {
+    console.log(`Getting Menu: ${restaurantCode}`);
     const rawRestaurantData =
       await this.restaurantsApiAdapter.getRestaurantData(restaurantCode);
     if (rawRestaurantData) {
+      console.log(`Loaded menu: ${restaurantCode} - ${rawRestaurantData.name}`);
       let menuItems =
         this.menuItemsProcessor.getMenuItemsFromRestaurant(rawRestaurantData);
       const uploadResult: MenuItemUploadStatus[] = [];
       for (let menuItem of menuItems) {
+        console.log(
+          `Adding item ${menuItem.item_id} (${menuItem.item_name}) from ${rawRestaurantData.code} to the storage`,
+        );
         const uploadSuccess =
           await this.restaurantsApiAdapter.uploadMenuItem(menuItem);
         uploadResult.push({
@@ -29,6 +34,11 @@ export class IntegrateSingleRestarantMenuItemsUseCase implements IntegrateSingle
           restaurant: menuItem.restaurant,
           success: uploadSuccess,
         });
+        if (uploadSuccess) {
+          console.log(
+            `Added item ${menuItem.item_id} (${menuItem.item_name}) from ${rawRestaurantData.code} to the storage`,
+          );
+        }
       }
       return uploadResult;
     }

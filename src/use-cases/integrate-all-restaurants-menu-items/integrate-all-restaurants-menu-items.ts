@@ -15,14 +15,23 @@ export class IntegrateAllRestarantsMenuItemsUseCase implements IntegrateAllResta
     }
     const splitRestaurantCodes = restaurantCodes.split(",");
     const allRestaurantsResults = (
-      await Promise.allSettled(
+      await Promise.all(
         splitRestaurantCodes.map((code) =>
           this.singleRestaurantIntegrator.integrateMenuItems(code),
         ),
       )
     ).flat();
+    const successCount = allRestaurantsResults.filter(
+      (result) => result.success,
+    ).length;
+    const failureCount = allRestaurantsResults.length - successCount;
+    console.log(
+      `Saved ${successCount} items, ${failureCount} failure:\n---\nRestaurant, Category, Item, Success\n---`,
+    );
     for (const singleRestaurantResult of allRestaurantsResults) {
-      console.log(singleRestaurantResult);
+      const { restaurant, category, item_name, success } =
+        singleRestaurantResult;
+      console.log(`${restaurant}, ${category}, ${item_name}, ${success}`);
     }
   }
 }
