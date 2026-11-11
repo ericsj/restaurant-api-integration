@@ -5,11 +5,13 @@ import type {
 import type { MenuItem } from "../domain/entities/transformed-data.js";
 import type { RestaurantsApi } from "../use-cases/protocols/restaurants-api-adapter.js";
 
+export type FetchFn = typeof fetch;
+
 export class RestaurantsApiAdapter implements RestaurantsApi {
   private baseUrl: string | undefined;
   private userId: string | undefined;
 
-  constructor() {
+  constructor(private readonly fetchApi: FetchFn = fetch) {
     this.baseUrl = process.env.BASE_API_URL;
     this.userId = process.env.USER_ID;
     if (!this.baseUrl) {
@@ -23,7 +25,7 @@ export class RestaurantsApiAdapter implements RestaurantsApi {
   async getRestaurantData(restaurantId: string): Promise<Restaurant | null> {
     const url = `${this.baseUrl}/restaurants/${restaurantId}`;
     try {
-      const api_response = await fetch(url);
+      const api_response = await this.fetchApi(url);
       if (api_response.ok) {
         const jsonResponse =
           (await api_response.json()) as RestaurantApiResponse;
@@ -38,7 +40,7 @@ export class RestaurantsApiAdapter implements RestaurantsApi {
   async uploadMenuItem(menuItem: MenuItem): Promise<boolean> {
     const url = `${this.baseUrl}/${this.userId}/items`;
     try {
-      const api_response = await fetch(url, {
+      const api_response = await this.fetchApi(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(menuItem),
