@@ -40,6 +40,7 @@ export class RestaurantsApiAdapter implements RestaurantsApi {
     try {
       const api_response = await fetch(url, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(menuItem),
       });
       return api_response.ok;
