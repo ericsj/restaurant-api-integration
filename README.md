@@ -2,7 +2,7 @@
 
 ## About
 
-This project is an API integration. It fetches restaurant dishes from an API (endpoint: `/restaurants/{restaurant code}`, the restaurant codes list are fetched from environement variables), formats the data and uploads each dish to another endpoint (`/{user_id}/items`). Data is stored in memory only; no database is used. The last section shows samples of the external API data models.
+This project is an API integration. It fetches restaurant dishes from an API (endpoint: `/restaurants/{restaurant code}`, the restaurant codes list are fetched from environement variables), formats the data and uploads each dish to another endpoint (`/{user_id}/items`). Data is stored in memory only; no database is used. The last section shows samples of the external API data models and you can find its docs [here](https://menu-api-rho.vercel.app/).
 
 ## Architecture
 
@@ -38,7 +38,7 @@ Dependencies are wired through constructor injection: each use case receives the
 2. Create a `.env` file in the project root:
 
    ```env
-   BASE_API_URL=https://integration.vercel.app
+   BASE_API_URL=[https://menu-api-rho.vercel.app/](https://menu-api-rho.vercel.app/)
    RESTAURANT_CODES=b2bi,v6zw
    USER_ID=foo123
    ```
