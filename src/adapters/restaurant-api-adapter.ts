@@ -1,4 +1,7 @@
-import type { Restaurant } from "../domain/entities/raw-data.js";
+import type {
+  Restaurant,
+  RestaurantApiResponse,
+} from "../domain/entities/raw-data.js";
 import type { MenuItem } from "../domain/entities/transformed-data.js";
 import type { RestaurantsApi } from "../use-cases/protocols/restaurants-api-adapter.js";
 
@@ -22,7 +25,9 @@ export class RestaurantsApiAdapter implements RestaurantsApi {
     try {
       const api_response = await fetch(url);
       if (api_response.ok) {
-        return api_response.json();
+        const jsonResponse =
+          (await api_response.json()) as RestaurantApiResponse;
+        return jsonResponse.data;
       }
       return null;
     } catch {

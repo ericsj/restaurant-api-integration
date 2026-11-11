@@ -41,3 +41,8 @@ export type RestaurantIdAndCode = {
   id: number;
   code: string;
 };
+
+export type RestaurantApiResponse = {
+  status_code: number;
+  data: Restaurant;
+};
