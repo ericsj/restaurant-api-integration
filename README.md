@@ -2,7 +2,7 @@
 
 ## About
 
-This project is an API integration. It fetches restaurant dishes from an API (`/restaurants/{restaurant_id}`), formats the data and uploads each dish to another endpoint (`/{user_id}/items`). The last section shows samples of the external API data models.
+This project is an API integration. It fetches restaurant dishes from an API (endpoint: `/restaurants/{restaurant code}`, the restaurant codes list are fetched from environement variables), formats the data and uploads each dish to another endpoint (`/{user_id}/items`). Data is stored in memory only; no database is used. The last section shows samples of the external API data models.
 
 ## Architecture
 
@@ -57,7 +57,7 @@ npm test
 
 ## External API Endpoints
 
-### GET /restaurants/{restaurant_id}
+### GET /restaurants/{restaurant code}
 
 Returns a restaurant and its menus.
 
