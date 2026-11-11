@@ -20,6 +20,11 @@ Dependencies are wired through constructor injection: each use case receives the
 
 **External API rate limiting**: a 100 ms delay is applied between menu item upload requests to avoid hitting the external API's rate limits.
 
+**Integration status logging**:
+<img width="1215" height="260" alt="res" src="https://github.com/user-attachments/assets/9504ec88-6536-4393-bf40-4e4554372a7c" />
+<img width="1208" height="273" alt="result" src="https://github.com/user-attachments/assets/128f529e-eb83-4557-896e-c5f1a67db73b" />
+
+
 ## Local Setup
 
 **Prerequisites**: Node.js 22+
