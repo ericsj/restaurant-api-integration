@@ -1,13 +1,23 @@
 import { describe, expect, test, afterEach, vi } from "vitest";
 import { RestaurantsApiAdapter } from "./restaurant-api-adapter.js";
+import { restaurantApiResponseMock } from "./mocks/api-response-mocks.js";
+import { restaurantMock } from "../use-cases/mocks/restaurant.js";
+import { menuItemMock, menuItemsMock } from "../use-cases/mocks/menu-item.js";
 
 const RESTAURANT_ID = "foo777";
 type FetchApiType = "successful_response" | "bad_request" | "throw";
 
-const makeFetchApiMock = (type: FetchApiType) => {
+const makeFetchApiMock = (responseBody: any, type: FetchApiType) => {
   switch (type) {
     case "successful_response":
-      return vi.fn<typeof fetch>();
+      return vi.fn<typeof fetch>().mockResolvedValue(
+        new Response(JSON.stringify(responseBody), {
+          status: 200,
+          headers: {
+            "responseBody-Type": "application/json",
+          },
+        }),
+      );
     case "bad_request":
       return vi
         .fn()
@@ -19,8 +29,8 @@ const makeFetchApiMock = (type: FetchApiType) => {
   }
 };
 
-const makeSut = (fetchApiType: FetchApiType) => {
-  const fetchApi = makeFetchApiMock(fetchApiType);
+const makeSut = (responseBody: any, fetchApiType: FetchApiType) => {
+  const fetchApi = makeFetchApiMock(responseBody, fetchApiType);
   const restaurantApiAdapter = new RestaurantsApiAdapter(fetchApi);
   return { restaurantApiAdapter, fetchApi };
 };
@@ -35,7 +45,9 @@ describe("RestaurantsApiAdapter", () => {
       vi.stubEnv("BASE_API_URL", undefined);
       expect(
         () =>
-          new RestaurantsApiAdapter(makeFetchApiMock("successful_response")),
+          new RestaurantsApiAdapter(
+            makeFetchApiMock(restaurantMock, "successful_response"),
+          ),
       ).toThrow();
     });
 
@@ -43,7 +55,9 @@ describe("RestaurantsApiAdapter", () => {
       vi.stubEnv("USER_ID", undefined);
       expect(
         () =>
-          new RestaurantsApiAdapter(makeFetchApiMock("successful_response")),
+          new RestaurantsApiAdapter(
+            makeFetchApiMock(restaurantMock, "successful_response"),
+          ),
       ).toThrow();
     });
   });
@@ -52,7 +66,10 @@ describe("RestaurantsApiAdapter", () => {
     test("should call fetchApi with correct values", async () => {
       vi.stubEnv("USER_ID", "foo123");
       vi.stubEnv("BASE_API_URL", "https://foo.bar");
-      const { restaurantApiAdapter, fetchApi } = makeSut("successful_response");
+      const { restaurantApiAdapter, fetchApi } = makeSut(
+        restaurantApiResponseMock,
+        "successful_response",
+      );
       restaurantApiAdapter.getRestaurantData(RESTAURANT_ID);
       await expect(fetchApi).toHaveBeenCalledWith(
         `https://foo.bar/restaurants/${RESTAURANT_ID}`,
@@ -62,7 +79,10 @@ describe("RestaurantsApiAdapter", () => {
     test("should return null in case fetch API returns status code out of 200-299 range", async () => {
       vi.stubEnv("USER_ID", "foo123");
       vi.stubEnv("BASE_API_URL", "https://foo.bar");
-      const { restaurantApiAdapter } = makeSut("bad_request");
+      const { restaurantApiAdapter } = makeSut(
+        restaurantApiResponseMock,
+        "bad_request",
+      );
       const result =
         await restaurantApiAdapter.getRestaurantData(RESTAURANT_ID);
       expect(result).toBeNull();
@@ -71,10 +91,67 @@ describe("RestaurantsApiAdapter", () => {
     test("should return null in case fetch API throws", async () => {
       vi.stubEnv("USER_ID", "foo123");
       vi.stubEnv("BASE_API_URL", "https://foo.bar");
-      const { restaurantApiAdapter } = makeSut("throw");
+      const { restaurantApiAdapter } = makeSut(
+        restaurantApiResponseMock,
+        "throw",
+      );
       const result =
         await restaurantApiAdapter.getRestaurantData(RESTAURANT_ID);
       expect(result).toBeNull();
+    });
+
+    test("should return the API response", async () => {
+      vi.stubEnv("USER_ID", "foo123");
+      vi.stubEnv("BASE_API_URL", "https://foo.bar");
+      const { restaurantApiAdapter } = makeSut(
+        restaurantApiResponseMock,
+        "successful_response",
+      );
+      const result =
+        await restaurantApiAdapter.getRestaurantData(RESTAURANT_ID);
+      expect(result).toStrictEqual(restaurantMock);
+    });
+  });
+
+  describe("uploadMenuItem", () => {
+    test("should call fetchApi with correct values", async () => {
+      vi.stubEnv("USER_ID", "foo123");
+      vi.stubEnv("BASE_API_URL", "https://foo.bar");
+      const { restaurantApiAdapter, fetchApi } = makeSut(
+        menuItemsMock,
+        "successful_response",
+      );
+      restaurantApiAdapter.getRestaurantData(RESTAURANT_ID);
+      await expect(fetchApi).toHaveBeenCalledWith(
+        `https://foo.bar/restaurants/${RESTAURANT_ID}`,
+      );
+    });
+
+    test("should return false in case fetch API returns status code out of 200-299 range", async () => {
+      vi.stubEnv("USER_ID", "foo123");
+      vi.stubEnv("BASE_API_URL", "https://foo.bar");
+      const { restaurantApiAdapter } = makeSut(menuItemMock, "bad_request");
+      const result = await restaurantApiAdapter.uploadMenuItem(menuItemMock);
+      expect(result).toBe(false);
+    });
+
+    test("should return false in case fetch API throws", async () => {
+      vi.stubEnv("USER_ID", "foo123");
+      vi.stubEnv("BASE_API_URL", "https://foo.bar");
+      const { restaurantApiAdapter } = makeSut(menuItemMock, "throw");
+      const result = await restaurantApiAdapter.uploadMenuItem(menuItemMock);
+      expect(result).toBe(false);
+    });
+
+    test("should return true if successful response", async () => {
+      vi.stubEnv("USER_ID", "foo123");
+      vi.stubEnv("BASE_API_URL", "https://foo.bar");
+      const { restaurantApiAdapter } = makeSut(
+        menuItemMock,
+        "successful_response",
+      );
+      const result = await restaurantApiAdapter.uploadMenuItem(menuItemMock);
+      expect(result).toBe(true);
     });
   });
 });
